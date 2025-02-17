@@ -191,18 +191,19 @@
       </div>
     </div>
     <script>
-       const chatBody = document.getElementById("chatBody");
+      const chatBody = document.getElementById("chatBody");
       const messageInput = document.getElementById("messageInput");
 
-      function appendMessage(message, sender) {
+      function appendMessage(sender, text) {
         const messageDiv = document.createElement("div");
-        messageDiv.classList.add("message", sender);
-        const messageBubble = document.createElement("div");
-        messageBubble.classList.add("bubble");
-        messageBubble.textContent = message;
-        messageDiv.appendChild(messageBubble);
+        messageDiv.className = "message " + sender;
+        const bubbleDiv = document.createElement("div");
+        bubbleDiv.className = "bubble";
+        bubbleDiv.textContent = text;
+        messageDiv.appendChild(bubbleDiv);
         chatBody.appendChild(messageDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
+        return bubbleDiv;
       }
 
       function typeWriter(element, text, speed = 10) {
@@ -220,29 +221,35 @@
       async function sendMessage() {
         const userMessage = messageInput.value.trim();
         if (!userMessage) return;
-        appendMessage(userMessage, "user");
+        appendMessage("user", userMessage);
         messageInput.value = "";
 
-        const aiBubble = document.createElement("div");
-        aiBubble.className = "bubble";
-        appendMessage("Generating response...", "ai");
+        const aiBubble = appendMessage("ai", "Generating response...");
 
-        // Your Railway URL with protocol and endpoint (update as needed)
-        const railwayUrl = "https://genai-api.up.railway.app/api/chat";
+        let toggle = true;
+        const messages = ["Generating response...", "Powered by Sagar"];
+        const toggleInterval = setInterval(() => {
+          aiBubble.textContent = messages[toggle ? 1 : 0];
+          toggle = !toggle;
+        }, 1000);
 
         try {
-          const response = await fetch(railwayUrl, {
+          const response = await fetch("http://localhost:3000/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: userMessage }),
           });
-          const data = await response.json();
-          // Clear previous message and type new response
+          clearInterval(toggleInterval);
           aiBubble.textContent = "";
-          typeWriter(aiBubble, data.reply || "Error: No response", 10);
+          const data = await response.json();
+          const replyText = (data.reply || "Error: No response").replace(
+            /\*/g,
+            ""
+          );
+          typeWriter(aiBubble, replyText, 10);
         } catch (error) {
+          clearInterval(toggleInterval);
           aiBubble.textContent = "Error: Failed to fetch response";
-          console.error("Error:", error);
         }
       }
 
@@ -252,6 +259,63 @@
           sendMessage();
         }
       });
+
+
+
+
+
+
+
+      function sendMessage() {
+    const message = document.getElementById("messageInput").value;
+
+    // Check if the message is not empty
+    if (message.trim() === "") return;
+
+    // Display user message
+    appendMessage(message, "user");
+
+    // Clear the input field
+    document.getElementById("messageInput").value = "";
+
+    // Your railway URL (replace with the actual URL)
+    const railwayUrl = "genai-api.up.railway.app";
+
+    // Send message to the Railway API (use POST if needed)
+    fetch(railwayUrl, {
+      method: "POST", // or 'GET' depending on the API
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: message }), // Adjust according to your API
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Assuming the API returns a 'reply' field
+        appendMessage(data.reply, "ai");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        appendMessage("Sorry, there was an error.", "ai");
+      });
+  }
+
+  // Function to append messages to the chat
+  function appendMessage(message, sender) {
+    const chatBody = document.getElementById("chatBody");
+
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message", sender);
+
+    const messageBubble = document.createElement("div");
+    messageBubble.classList.add("bubble");
+    messageBubble.textContent = message;
+
+    messageDiv.appendChild(messageBubble);
+    chatBody.appendChild(messageDiv);
+
+    chatBody.scrollTop = chatBody.scrollHeight; // Scroll to the latest message
+  }
     </script>
   </body>
 </html>
