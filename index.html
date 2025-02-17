@@ -191,19 +191,18 @@
       </div>
     </div>
     <script>
-      const chatBody = document.getElementById("chatBody");
+       const chatBody = document.getElementById("chatBody");
       const messageInput = document.getElementById("messageInput");
 
-      function appendMessage(sender, text) {
+      function appendMessage(message, sender) {
         const messageDiv = document.createElement("div");
-        messageDiv.className = "message " + sender;
-        const bubbleDiv = document.createElement("div");
-        bubbleDiv.className = "bubble";
-        bubbleDiv.textContent = text;
-        messageDiv.appendChild(bubbleDiv);
+        messageDiv.classList.add("message", sender);
+        const messageBubble = document.createElement("div");
+        messageBubble.classList.add("bubble");
+        messageBubble.textContent = message;
+        messageDiv.appendChild(messageBubble);
         chatBody.appendChild(messageDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
-        return bubbleDiv;
       }
 
       function typeWriter(element, text, speed = 10) {
@@ -221,35 +220,29 @@
       async function sendMessage() {
         const userMessage = messageInput.value.trim();
         if (!userMessage) return;
-        appendMessage("user", userMessage);
+        appendMessage(userMessage, "user");
         messageInput.value = "";
 
-        const aiBubble = appendMessage("ai", "Generating response...");
+        const aiBubble = document.createElement("div");
+        aiBubble.className = "bubble";
+        appendMessage("Generating response...", "ai");
 
-        let toggle = true;
-        const messages = ["Generating response...", "Powered by Sagar"];
-        const toggleInterval = setInterval(() => {
-          aiBubble.textContent = messages[toggle ? 1 : 0];
-          toggle = !toggle;
-        }, 1000);
+        // Your Railway URL with protocol and endpoint (update as needed)
+        const railwayUrl = "https://genai-api.up.railway.app/api/chat";
 
         try {
-          const response = await fetch("http://localhost:3000/api/chat", {
+          const response = await fetch(railwayUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: userMessage }),
           });
-          clearInterval(toggleInterval);
-          aiBubble.textContent = "";
           const data = await response.json();
-          const replyText = (data.reply || "Error: No response").replace(
-            /\*/g,
-            ""
-          );
-          typeWriter(aiBubble, replyText, 10);
+          // Clear previous message and type new response
+          aiBubble.textContent = "";
+          typeWriter(aiBubble, data.reply || "Error: No response", 10);
         } catch (error) {
-          clearInterval(toggleInterval);
           aiBubble.textContent = "Error: Failed to fetch response";
+          console.error("Error:", error);
         }
       }
 
