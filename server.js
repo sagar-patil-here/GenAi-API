@@ -9,7 +9,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());
-
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
 // Define the /api/chat endpoint
 app.post("/api/chat", async (req, res) => {
   // Use the message provided by the client or default to a prompt
