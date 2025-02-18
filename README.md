@@ -1,5 +1,7 @@
 # 💬 AI Chatbot – Powered by Gemini API
 
+## Project Live On : https://gen-ai-api-black.vercel.app/
+
 ## Overview
 This is an AI-powered chatbot application that uses Google's **Gemini API** to generate responses based on user queries. The chatbot is designed to be interactive and efficient, providing real-time responses.
 
