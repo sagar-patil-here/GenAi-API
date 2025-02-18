@@ -12,9 +12,7 @@ app.use(cors({ origin: "*" }));
 app.get("/", (req, res) => {
   res.send("Server is running!");
 });
-// Define the /api/chat endpoint
 app.post("/api/chat", async (req, res) => {
-  // Use the message provided by the client or default to a prompt
   const prompt = req.body.message || "Explain how AI works";
 
   try {

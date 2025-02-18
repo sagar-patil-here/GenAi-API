@@ -194,7 +194,6 @@
        const chatBody = document.getElementById("chatBody");
       const messageInput = document.getElementById("messageInput");
 
-      // Single definition of appendMessage
       function appendMessage(message, sender) {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("message", sender);
@@ -207,7 +206,6 @@
         return messageBubble;
       }
 
-      // Typewriter effect for displaying the response
       function typeWriter(element, text, speed = 10) {
         element.textContent = "";
         let index = 0;
@@ -226,7 +224,6 @@
         appendMessage(userMessage, "user");
         messageInput.value = "";
 
-        // Create the AI bubble and start toggle text effect
         const aiBubble = appendMessage("Generating response...", "ai");
 
         let toggle = true;
@@ -236,7 +233,6 @@
           toggle = !toggle;
         }, 1000);
 
-        // Correct Railway URL with the endpoint /api/chat
         const railwayUrl = "https://genai-api.up.railway.app/api/chat";
 
         try {
